@@ -2,7 +2,7 @@ import { Component, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Todo } from '../models/todo.model';
-import { TodoService } from '../services/todo.service';
+import { TodoService } from '../services/todo';
 
 @Component({
   selector: 'app-todo-list',
