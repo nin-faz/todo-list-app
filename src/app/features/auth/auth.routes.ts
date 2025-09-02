@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login';
+import { RegisterComponent } from './components/register/register';
 
 export const AUTH_ROUTES: Routes = [
   {
@@ -8,8 +9,7 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'register',
-    // TODO: Ajouter RegisterComponent dans la Partie 2
-    redirectTo: '/todos',
+    component: RegisterComponent,
   },
   {
     path: '',
