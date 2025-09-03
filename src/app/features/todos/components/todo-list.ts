@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Todo } from '../models/todo.model';
 import { TodoService } from '../services/todo';
+import { DurationPipe } from '../../../shared/pipes/duration-pipe';
+import { PriorityPipe } from '../../../shared/pipes/priority-pipe';
 
 @Component({
   selector: 'app-todo-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DurationPipe, PriorityPipe],
   template: `
     <div class="max-w-4xl mx-auto">
       <h2 class="text-3xl font-bold mb-6">Mes Todos</h2>
@@ -25,7 +27,7 @@ import { TodoService } from '../services/todo';
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
           <h3 class="text-xl font-semibold mb-4">Ajouter une tâche</h3>
           <form (ngSubmit)="addTodo()" #todoForm="ngForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <input
                 type="text"
                 [(ngModel)]="newTodo.title"
@@ -40,6 +42,15 @@ import { TodoService } from '../services/todo';
                 [(ngModel)]="newTodo.description"
                 name="description"
                 placeholder="Description (optionnel)"
+                class="border p-2 rounded"
+              />
+
+              <input
+                type="number"
+                [(ngModel)]="newTodo.duration"
+                name="duration"
+                min="1"
+                placeholder="Durée (min)"
                 class="border p-2 rounded"
               />
             </div>
@@ -91,7 +102,10 @@ import { TodoService } from '../services/todo';
                       'bg-green-100 text-green-800': todo.priority === 'low',
                     }"
                   >
-                    {{ todo.priority | titlecase }}
+                    {{ todo.priority | priority }}
+                  </span>
+                  <span class="text-xs text-gray-700 ml-2">
+                    {{ todo.duration ? (todo.duration | duration) : '-' }}
                   </span>
                   <button
                     (click)="updateStatus(todo.id, 'in-progress')"
@@ -124,7 +138,10 @@ import { TodoService } from '../services/todo';
                       'bg-green-100 text-green-800': todo.priority === 'low',
                     }"
                   >
-                    {{ todo.priority | titlecase }}
+                    {{ todo.priority | priority }}
+                  </span>
+                  <span class="text-xs text-gray-700 ml-2">
+                    {{ todo.duration ? (todo.duration | duration) : '-' }}
                   </span>
                   <button
                     (click)="updateStatus(todo.id, 'done')"
@@ -150,7 +167,10 @@ import { TodoService } from '../services/todo';
                 }
                 <div class="flex justify-between items-center mt-2">
                   <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-800">
-                    {{ todo.priority | titlecase }}
+                    {{ todo.priority | priority }}
+                  </span>
+                  <span class="text-xs text-gray-700 ml-2">
+                    {{ todo.duration ? (todo.duration | duration) : '-' }}
                   </span>
                   <button (click)="deleteTodo(todo.id)" class="text-red-600 hover:text-red-800">
                     Supprimer
@@ -174,6 +194,7 @@ export class TodoListComponent implements OnInit {
     title: '',
     description: '',
     priority: 'medium' as const,
+    duration: undefined,
   };
 
   // constructor(private todoService: TodoService) {}
@@ -203,6 +224,7 @@ export class TodoListComponent implements OnInit {
           title: this.newTodo.title,
           description: this.newTodo.description,
           priority: this.newTodo.priority,
+          duration: this.newTodo.duration,
         });
 
         // Recharger les todos
@@ -211,6 +233,7 @@ export class TodoListComponent implements OnInit {
         // Réinitialiser le formulaire
         this.newTodo.title = '';
         this.newTodo.description = '';
+        this.newTodo.duration = undefined;
       } catch (error) {
         console.error("Erreur lors de l'ajout du todo:", error);
       } finally {
