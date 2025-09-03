@@ -5,11 +5,12 @@ import { Todo } from '../models/todo.model';
 import { TodoService } from '../services/todo';
 import { DurationPipe } from '../../../shared/pipes/duration-pipe';
 import { PriorityPipe } from '../../../shared/pipes/priority-pipe';
+import { HighlightDirective } from '../../../shared/directives/highlight';
 
 @Component({
   selector: 'app-todo-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, DurationPipe, PriorityPipe],
+  imports: [CommonModule, FormsModule, DurationPipe, PriorityPipe, HighlightDirective],
   template: `
     <div class="max-w-4xl mx-auto">
       <h2 class="text-3xl font-bold mb-6">Mes Todos</h2>
@@ -88,7 +89,11 @@ import { PriorityPipe } from '../../../shared/pipes/priority-pipe';
               À faire ({{ getTodosByStatus('todo').length }})
             </h3>
             @for (todo of getTodosByStatus('todo'); track todo.id) {
-              <div class="bg-white p-4 rounded shadow mb-3">
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-400 mb-3"
+                [appHighlight]="todo.priority === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'transparent'"
+                [appHighlightDelay]="todo.priority === 'high' ? 500 : 0"
+              >
                 <h4 class="font-semibold">{{ todo.title }}</h4>
                 @if (todo.description) {
                   <p class="text-gray-600 text-sm mt-1">{{ todo.description }}</p>
@@ -124,7 +129,11 @@ import { PriorityPipe } from '../../../shared/pipes/priority-pipe';
               En cours ({{ getTodosByStatus('in-progress').length }})
             </h3>
             @for (todo of getTodosByStatus('in-progress'); track todo.id) {
-              <div class="bg-white p-4 rounded shadow mb-3">
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-400 mb-3"
+                [appHighlight]="todo.priority === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'transparent'"
+                [appHighlightDelay]="todo.priority === 'high' ? 500 : 0"
+              >
                 <h4 class="font-semibold">{{ todo.title }}</h4>
                 @if (todo.description) {
                   <p class="text-gray-600 text-sm mt-1">{{ todo.description }}</p>
@@ -160,7 +169,11 @@ import { PriorityPipe } from '../../../shared/pipes/priority-pipe';
               Terminé ({{ getTodosByStatus('done').length }})
             </h3>
             @for (todo of getTodosByStatus('done'); track todo.id) {
-              <div class="bg-white p-4 rounded shadow mb-3 opacity-75">
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-400 mb-3 opacity-75"
+                [appHighlight]="todo.priority === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'transparent'"
+                [appHighlightDelay]="todo.priority === 'high' ? 500 : 0"
+              >
                 <h4 class="font-semibold line-through">{{ todo.title }}</h4>
                 @if (todo.description) {
                   <p class="text-gray-600 text-sm mt-1 line-through">{{ todo.description }}</p>
