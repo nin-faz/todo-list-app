@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Observable, of, throwError, delay } from 'rxjs';
 import { User, LoginRequest, RegisterRequest } from '../models/user.model';
 
@@ -8,6 +8,13 @@ import { User, LoginRequest, RegisterRequest } from '../models/user.model';
 export class AuthService {
   private currentUser = signal<User | null>(null);
   public currentUser$ = this.currentUser.asReadonly();
+
+  // Signal avec validation
+  public isAdmin = computed(() => this.currentUser()?.role === 'admin');
+
+  public canEditTodos = computed(
+    () => this.currentUser() && (this.isAdmin() || this.currentUser()?.role === 'user'),
+  );
 
   // Mock data - utilisateurs de test
   private users: User[] = [
