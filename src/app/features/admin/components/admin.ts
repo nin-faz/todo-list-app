@@ -5,11 +5,13 @@ import { AuthService } from '../../auth/services/auth';
 import { TodoService } from '../../todos/services/todo';
 import { User } from '../../auth/models/user.model';
 import { Todo } from '../../todos/models/todo.model';
+import { DurationPipe } from '../../../shared/pipes/duration-pipe';
+import { PriorityPipe } from '../../../shared/pipes/priority-pipe';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DurationPipe, PriorityPipe],
   template: `
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="mb-8">
@@ -159,6 +161,11 @@ import { Todo } from '../../todos/models/todo.model';
                       <th
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
+                        Durée
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Actions
                       </th>
                     </tr>
@@ -195,11 +202,17 @@ import { Todo } from '../../todos/models/todo.model';
                             [class.text-green-800]="todo.priority === 'low'"
                             class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                           >
-                            {{ todo.priority | titlecase }}
+                            {{ todo.priority | priority }}
                           </span>
                         </td>
+
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {{ todo.assignedTo || 'Non assigné' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <span class="text-xs text-gray-700">
+                            {{ todo.duration ? (todo.duration | duration) : '-' }}
+                          </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button

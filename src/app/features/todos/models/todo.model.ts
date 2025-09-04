@@ -4,6 +4,7 @@ export interface Todo {
   description: string;
   status: 'todo' | 'in-progress' | 'done';
   priority: 'low' | 'medium' | 'high';
+  duration?: number; // Durée en minutes
   assignedTo?: number; // ID de l'utilisateur assigné
   createdBy: number; // ID de l'utilisateur créateur
   createdAt: Date;
@@ -14,5 +15,6 @@ export interface CreateTodoRequest {
   title: string;
   description: string;
   priority: 'low' | 'medium' | 'high';
+  duration?: number;
   assignedTo?: number;
 }
