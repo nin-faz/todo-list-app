@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Observable, of, throwError, delay } from 'rxjs';
 import { User, LoginRequest, RegisterRequest } from '../models/user.model';
 
@@ -8,6 +8,13 @@ import { User, LoginRequest, RegisterRequest } from '../models/user.model';
 export class AuthService {
   private currentUser = signal<User | null>(null);
   public currentUser$ = this.currentUser.asReadonly();
+
+  // Signal avec validation
+  public isAdmin = computed(() => this.currentUser()?.role === 'admin');
+
+  public canEditTodos = computed(
+    () => this.currentUser() && (this.isAdmin() || this.currentUser()?.role === 'user'),
+  );
 
   // Mock data - utilisateurs de test
   private users: User[] = [
@@ -31,7 +38,12 @@ export class AuthService {
     'user@example.com': 'user123',
   };
 
+  // private users: User[] = [];
+  // private passwords: Record<string, string> = {};
+
   constructor() {
+    this.loadUsersFromStorage();
+
     // Vérifier s'il y a un utilisateur en session
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
@@ -70,6 +82,8 @@ export class AuthService {
     this.users.push(newUser);
     this.passwords[userData.email] = userData.password;
 
+    this.saveUsersToStorage();
+
     // Simuler un délai réseau
     return of(newUser).pipe(delay(500));
   }
@@ -90,7 +104,12 @@ export class AuthService {
   deleteUser(userId: number): Observable<void> {
     const index = this.users.findIndex((u) => u.id === userId);
     if (index !== -1) {
+      const deletedUser = this.users[index];
       this.users.splice(index, 1);
+      if (deletedUser && deletedUser.email) {
+        delete this.passwords[deletedUser.email];
+      }
+      this.saveUsersToStorage();
       return of(void 0).pipe(delay(300));
     }
     return throwError(() => new Error('Utilisateur non trouvé'));
@@ -105,5 +124,28 @@ export class AuthService {
   setCurrentUser(user: User): void {
     this.currentUser.set(user);
     localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+
+  private saveUsersToStorage(): void {
+    localStorage.setItem('users', JSON.stringify(this.users));
+    localStorage.setItem('usersPassword', JSON.stringify(this.passwords));
+  }
+
+  private loadUsersFromStorage(): void {
+    const savedUsers = localStorage.getItem('users');
+    const savedPasswords = localStorage.getItem('usersPassword');
+
+    if (savedUsers && savedPasswords) {
+      this.users = JSON.parse(savedUsers);
+      this.passwords = JSON.parse(savedPasswords);
+    }
+  }
+
+  clearAllUserData(): void {
+    localStorage.removeItem('users');
+    localStorage.removeItem('usersPassword');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('authToken');
+    this.loadUsersFromStorage();
   }
 }
