@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Todo } from '../models/todo.model';
@@ -11,6 +11,7 @@ import { HighlightDirective } from '../../../shared/directives/highlight';
   selector: 'app-todo-list',
   standalone: true,
   imports: [CommonModule, FormsModule, DurationPipe, PriorityPipe, HighlightDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="max-w-4xl mx-auto">
       <h2 class="text-3xl font-bold mb-6">Mes Todos</h2>
@@ -123,7 +124,11 @@ import { HighlightDirective } from '../../../shared/directives/highlight';
             <h3 class="text-lg font-semibold mb-4 text-gray-700">
               À faire ({{ getTodosByStatus('todo').length }})
             </h3>
-            @for (todo of getTodosByStatus('todo'); track todo.id) {
+            @for (
+              todo of todoService.pendingTodos();
+              let i = $index;
+              track trackByTodoId(i, todo)
+            ) {
               <div
                 class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-400 mb-3"
                 [appHighlight]="todo.priority === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'transparent'"
@@ -266,6 +271,11 @@ export class TodoListComponent implements OnInit {
 
   // constructor(private todoService: TodoService) {}
   todoService = inject(TodoService);
+
+  // ⚡ Optimisation : TrackBy pour éviter la recréation des éléments
+  trackByTodoId(index: number, todo: Todo): number {
+    return todo.id;
+  }
 
   async ngOnInit() {
     await this.loadTodos();

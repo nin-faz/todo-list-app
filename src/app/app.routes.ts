@@ -15,7 +15,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    canActivate: [adminGuard], // Protection par rôle admin
+    canActivate: [authGuard, adminGuard], // Protection par rôle admin
     loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
 ];
